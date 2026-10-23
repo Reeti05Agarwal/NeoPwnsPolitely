@@ -1,0 +1,53 @@
+---
+title: "Lab writeup: owning a vulnerable Active Directory lab end to end"
+description: Recon to domain admin in five steps, then how each step shows up in the logs.
+date: 2026-10-02
+verified: 2026-10-02
+topics: [ctf, active-directory]
+offensive: true
+video: kerberoasting
+references:
+  - { label: "GOAD: Game of Active Directory lab (github.com)", href: "https://github.com/Orange-Cyberdefense/GOAD" }
+  - { label: "MITRE ATT&CK Enterprise matrix (attack.mitre.org)", href: "https://attack.mitre.org/matrices/enterprise/" }
+---
+
+The lab is a single domain, `lab.local`, with one domain controller at `10.10.10.5` and two member servers. It runs on my machine, offline.
+
+## Step 1 — Knock, knock
+
+<CodeBlock lang="bash" host="attacker" lines={["$ nmap -sV -sC -p 53,88,135,389,445 10.10.10.5"]} />
+
+Ports 88 (Kerberos) and 389 (LDAP) confirm a domain controller.
+
+## Step 2 — Find accounts with SPNs
+
+With a low-privilege lab account, list service accounts. See the [Kerberoasting video](/videos/kerberoasting/) for the full walkthrough.
+
+<CodeBlock lang="bash" host="attacker" lines={["$ impacket-GetUserSPNs lab.local/<USER>:<PASSWORD> -dc-ip 10.10.10.5"]} />
+
+## Step 3 — Crack the service ticket
+
+The `svc_sql` password was in the wordlist. Service accounts with human-chosen passwords are the weak link.
+
+## Step 4 — Move to the SQL server
+
+`svc_sql` is a local administrator on `sql01`. A network logon there gives a shell as that account.
+
+## Step 5 — Domain admin
+
+A domain admin had an interactive session on `sql01`, so their credentials were in memory. That is the end of the domain.
+
+## How each step looks in the logs
+
+| Step | Evidence | Event ID |
+| --- | --- | --- |
+| 1 | Many connections from one host to the DC | Firewall logs |
+| 2 and 3 | Service ticket requests with RC4 encryption | 4769 |
+| 4 | Network logon as `svc_sql` on `sql01` | 4624 (type 3) |
+| 5 | Logon with a domain admin account from `sql01` | 4624, 4672 |
+
+<Callout type="defence" title="what would have stopped this">
+  - gMSA for `svc_sql`, so there is no crackable password.
+  - Service accounts are not local admins anywhere they do not need to be.
+  - Domain admins never log on to member servers. Use a tiered admin model.
+</Callout>

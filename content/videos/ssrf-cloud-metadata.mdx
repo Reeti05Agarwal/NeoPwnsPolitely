@@ -1,0 +1,50 @@
+---
+title: "SSRF: from theory to cloud metadata"
+description: How a URL preview feature can leak cloud credentials, reproduced safely in a local lab, then fixed.
+date: 2026-10-11
+verified: 2026-10-22
+series: may-i-come-in
+episode: 30
+thumbTitle: SSRF → cloud keys
+tone: ink
+duration: "11:42"
+youtubeId: ""
+severity: critical
+score: 9.1
+topics: [web, cloud]
+offensive: true
+notes: ssrf-cheat-sheet
+chapters:
+  - { time: "00:00", label: What SSRF is }
+  - { time: "02:10", label: Why the cloud makes it worse }
+  - { time: "04:30", label: "Lab: reach the metadata service" }
+  - { time: "08:05", label: "Detect it: outbound to 169.254.169.254" }
+  - { time: "09:50", label: "Fix it: allow-lists and IMDSv2" }
+references:
+  - { label: "OWASP: Server-Side Request Forgery (owasp.org)", href: "https://owasp.org/www-community/attacks/Server_Side_Request_Forgery" }
+  - { label: "PortSwigger SSRF labs (portswigger.net)", href: "https://portswigger.net/web-security/ssrf" }
+---
+
+## Summary
+
+Server-Side Request Forgery (SSRF): the attacker makes the server send a request on their behalf. The server can reach places the attacker cannot, like internal admin panels or the cloud metadata service at `169.254.169.254`.
+
+In this episode a URL preview feature fetches any address it is given. In the lab, that is enough to read instance metadata. The full writeup has the findings table and the fixes.
+
+## Commands from this video
+
+<CodeBlock
+  lang="bash"
+  host="your machine"
+  lines={[
+    "$ docker compose -f ssrf-lab.yml up -d",
+    "$ curl -s \"http://127.0.0.1:<LAB_PORT>/preview?url=http://169.254.169.254/latest/meta-data/\"",
+    "ami-id",
+    "iam/",
+    "instance-id",
+  ]}
+/>
+
+<Callout type="defence" title="detect and fix">
+  Alert on outbound requests from app servers to `169.254.169.254`. Resolve each destination first, then block private, loopback and link-local addresses before connecting. Require IMDSv2 tokens with a hop limit of 1.
+</Callout>

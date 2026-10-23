@@ -1,0 +1,47 @@
+---
+title: "Pardon the Intrusion: how a single header became remote code execution"
+description: Root cause, the patch diff, a safe lab to reproduce it, and the detection rule.
+date: 2026-10-15
+verified: 2026-10-15
+severity: critical
+score: 9.8
+topics: [web]
+offensive: true
+---
+
+This is a breakdown of a deliberately vulnerable lab app, built to show a pattern that keeps appearing in real advisories: a request header that ends up in a shell command.
+
+## 1. The bug
+
+The app logs the client's `X-Forwarded-For` header by passing it to a shell script. The header is user input, but the code treats it as a trusted IP address.
+
+```diff
+- subprocess.run(f"./log-visit.sh {request.headers['X-Forwarded-For']}", shell=True)
++ subprocess.run(["./log-visit.sh", client_ip(request)], shell=False)
+```
+
+## 2. Reproduce it in the lab
+
+<CodeBlock
+  lang="bash"
+  host="your machine"
+  lines={[
+    "$ docker compose -f header-lab.yml up -d",
+    "$ curl -s http://127.0.0.1:<LAB_PORT>/ -H \"X-Forwarded-For: 192.0.2.10; id\"",
+    "uid=1000(app) gid=1000(app) groups=1000(app)",
+  ]}
+/>
+
+The `; id` ends the first command and starts a second one. The output shows the second command ran as the `app` user.
+
+## 3. Why it scores 9.8
+
+CVSS 3.1 `AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:H/A:H`: reachable over the network, no login, no user action, and full control of the app's data.
+
+## 4. Detect and fix
+
+<Callout type="defence" title="detect and fix">
+  - Never build shell commands from strings. Pass arguments as a list with `shell=False`.
+  - Trust `X-Forwarded-For` only from your own proxies, and parse it as an IP address.
+  - Detect it: alert on request headers containing `;`, `|`, `$(` or backticks, and on web server processes spawning shells.
+</Callout>

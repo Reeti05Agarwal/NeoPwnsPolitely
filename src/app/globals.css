@@ -1,0 +1,56 @@
+@import "tailwindcss";
+@import "../styles/tokens.css";
+@import "../styles/components.css";
+
+/* Tokens exposed to Tailwind, so classes like `bg-surface-100 text-ink-muted`
+   follow the design system and switch with the theme. Spacing needs no mapping:
+   Tailwind's 4px step already gives p-1 = space-1, p-2 = space-2, p-4, p-8. */
+@theme inline {
+  --color-surface-000: var(--surface-000);
+  --color-surface-100: var(--surface-100);
+  --color-surface-200: var(--surface-200);
+  --color-border: var(--border);
+  --color-border-strong: var(--border-strong);
+  --color-ink: var(--ink);
+  --color-ink-muted: var(--ink-muted);
+  --color-slate-500: var(--slate-500);
+  --color-slate-text: var(--slate-text);
+  --color-mist-100: var(--mist-100);
+  --color-mist-text: var(--mist-text);
+  --color-cherry-500: var(--cherry-500);
+  --color-cherry-text: var(--cherry-text);
+  --color-on-accent: var(--on-accent);
+  --color-on-mist: var(--on-mist);
+
+  --font-mono: var(--font-stack);
+
+  --radius-sm: 2px;
+  --radius-md: 6px;
+  --radius-pill: 999px;
+
+  --text-display: 2.75rem;
+  --text-display--line-height: 3.25rem;
+  --text-display--letter-spacing: -0.5px;
+  --text-heading-1: 2rem;
+  --text-heading-1--line-height: 2.5rem;
+  --text-heading-2: 1.5rem;
+  --text-heading-2--line-height: 2rem;
+  --text-body: 1.125rem;
+  --text-body--line-height: 1.875rem;
+  --text-body-small: 1rem;
+  --text-body-small--line-height: 1.625rem;
+  --text-label: 0.875rem;
+  --text-label--line-height: 1.25rem;
+  --text-label--letter-spacing: 0.5px;
+  --text-code: 1rem;
+  --text-code--line-height: 1.5rem;
+
+  /* The design system's layout breakpoints. */
+  --breakpoint-tab: 55rem; /* 880px: gutters, header menu */
+  --breakpoint-side: 60rem; /* 960px: sidebars sit beside content */
+}
+
+@layer base {
+  html { scroll-behavior: smooth; }
+  ::selection { background: var(--slate-500); color: var(--on-accent); }
+}

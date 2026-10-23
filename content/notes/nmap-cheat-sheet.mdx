@@ -1,0 +1,58 @@
+---
+title: "Nmap cheat sheet: scans you will actually use"
+description: Host discovery, service detection, timing and output formats, with when to use each.
+date: 2026-10-20
+verified: 2026-10-20
+topics: [network]
+offensive: true
+references:
+  - { label: "Nmap reference guide (nmap.org)", href: "https://nmap.org/book/man.html" }
+  - { label: "Nmap Scripting Engine documentation (nmap.org)", href: "https://nmap.org/nsedoc/" }
+---
+
+Nmap 7.95. Knock before you scan: every target below is a lab address. Replace `<TARGET_IP>` with your own lab host.
+
+## 1. Find live hosts
+
+A ping sweep finds hosts without scanning their ports.
+
+<CodeBlock lang="bash" host="attacker" lines={["$ nmap -sn 192.0.2.0/24"]} />
+
+## 2. Scan every TCP port
+
+Nmap scans the top 1,000 ports by default. Services hide on high ports, so scan all 65,535 once you have a target.
+
+<CodeBlock lang="bash" host="attacker" lines={["$ nmap -p- --min-rate 1000 <TARGET_IP>"]} />
+
+## 3. Detect versions and run default scripts
+
+Run this only on the ports you found, to keep it fast.
+
+<CodeBlock
+  lang="bash"
+  host="attacker"
+  lines={[
+    "$ nmap -sV -sC -p 22,80,445 <TARGET_IP> -oA scans/target",
+    "PORT    STATE SERVICE     VERSION",
+    "22/tcp  open  ssh         OpenSSH 9.6p1",
+    "80/tcp  open  http        nginx 1.24.0",
+    "445/tcp open  microsoft-ds",
+  ]}
+/>
+
+## 4. Flags worth remembering
+
+| Flag | What it does |
+| --- | --- |
+| `-sn` | Host discovery only, no port scan |
+| `-p-` | All 65,535 TCP ports |
+| `-sV` | Detect service versions |
+| `-sC` | Run the default NSE scripts |
+| `-sU` | UDP scan (slow; pick ports with `-p`) |
+| `-T0` to `-T5` | Timing, from paranoid to insane. `-T3` is the default |
+| `-oA <NAME>` | Save normal, XML and grepable output at once |
+| `-Pn` | Skip discovery and treat the host as up |
+
+<Callout type="defence" title="what defenders see">
+  A full port scan is loud: thousands of SYN packets from one source, mostly to closed ports. Most IDS rules (for example Suricata's scan detection) flag it within seconds. Rate limits and a default-deny firewall make it slower and less useful.
+</Callout>

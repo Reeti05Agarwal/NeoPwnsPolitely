@@ -1,0 +1,46 @@
+{
+  "name": "neo-pwns-politely",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Neo Pwns Politely: ethical hacking, with manners. Videos, notes, writeups and resources.",
+  "engines": {
+    "node": ">=20.9"
+  },
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "postbuild": "pagefind --site out",
+    "start": "serve out -l 3000",
+    "lint": "eslint .",
+    "typecheck": "tsc --noEmit",
+    "test:a11y": "playwright test"
+  },
+  "dependencies": {
+    "@mdx-js/mdx": "^3.1.1",
+    "@shikijs/rehype": "^3.13.0",
+    "github-slugger": "^2.0.0",
+    "gray-matter": "^4.0.3",
+    "next": "16.0.1",
+    "react": "19.2.0",
+    "react-dom": "19.2.0",
+    "rehype-slug": "^6.0.0",
+    "remark-gfm": "^4.0.1",
+    "server-only": "^0.0.1",
+    "shiki": "^3.13.0"
+  },
+  "devDependencies": {
+    "@axe-core/playwright": "^4.11.0",
+    "@playwright/test": "^1.56.1",
+    "@tailwindcss/postcss": "^4.1.16",
+    "@types/node": "^22.18.0",
+    "@types/react": "^19.2.2",
+    "@types/react-dom": "^19.2.2",
+    "eslint": "^9.38.0",
+    "eslint-config-next": "16.0.1",
+    "eslint-plugin-jsx-a11y": "^6.10.2",
+    "pagefind": "^1.4.0",
+    "serve": "^14.2.5",
+    "tailwindcss": "^4.1.16",
+    "typescript": "^5.9.3"
+  }
+}

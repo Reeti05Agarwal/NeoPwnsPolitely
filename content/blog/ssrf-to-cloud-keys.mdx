@@ -1,0 +1,82 @@
+---
+title: "SSRF: from theory to cloud metadata"
+description: How a URL preview feature can leak cloud credentials, reproduced safely in a local lab, then fixed.
+date: 2026-10-11
+verified: 2026-10-22
+severity: critical
+score: 9.1
+topics: [web, cloud]
+video: ssrf-cloud-metadata
+references:
+  - { label: "OWASP: Server-Side Request Forgery (owasp.org)", href: "https://owasp.org/www-community/attacks/Server_Side_Request_Forgery" }
+  - { label: "PortSwigger SSRF labs (portswigger.net)", href: "https://portswigger.net/web-security/ssrf" }
+  - { label: "Lab files on GitHub (github.com)", href: "https://github.com/NeoPwnsPolitely" }
+---
+
+<Responsible>The vulnerable app and fake metadata service below run in Docker on your machine.</Responsible>
+
+## 1. What SSRF is
+
+Server-Side Request Forgery (SSRF): the attacker makes the server send a request on their behalf. The server can reach places the attacker cannot, like internal admin panels or the cloud metadata service.
+
+<Callout type="note">
+  Think of it as borrowing the server's network position. The bug is not the request itself. It is trusting a destination the user chose.
+</Callout>
+
+## 2. Why the cloud makes it worse
+
+Cloud instances expose a metadata service at `169.254.169.254`. Older configurations (IMDSv1 on AWS) return temporary credentials to any process that asks, with no extra header required.
+
+## 3. Lab: reach the metadata service
+
+Start the lab, then point the preview feature at the metadata address. Replace `<LAB_PORT>` with the port printed by Docker.
+
+<CodeBlock
+  lang="bash"
+  host="your machine"
+  lines={[
+    "$ docker compose -f ssrf-lab.yml up -d",
+    "$ curl -s \"http://127.0.0.1:<LAB_PORT>/preview?url=http://169.254.169.254/latest/meta-data/\"",
+    "ami-id",
+    "iam/",
+    "instance-id",
+  ]}
+/>
+
+<Callout type="warning" title="clean up">
+  The next command deletes the lab containers and volumes. Run it only in the lab folder.
+</Callout>
+
+<CodeBlock lang="bash" host="your machine" lines={[{ prompt: "$", cmd: "docker compose -f ssrf-lab.yml down -v", danger: true }]} />
+
+## 4. Findings
+
+<FindingsTable
+  caption="Findings in the lab app"
+  rows={[
+    { id: "F-01", finding: "Preview endpoint fetches any URL, including link-local addresses", severity: "critical", score: 9.1, fix: "Allow-list destinations; block private and link-local ranges" },
+    { id: "F-02", finding: "Metadata service v1 enabled (no session token)", severity: "high", score: 7.5, fix: "Require IMDSv2 tokens" },
+    { id: "F-03", finding: "Full response body returned to the user", severity: "medium", score: 5.3, fix: "Return only parsed preview fields" },
+    { id: "F-04", finding: "Verbose error shows internal hostnames", severity: "low", score: 3.1, fix: "Generic error messages" },
+    { id: "F-05", finding: "No request logging on the preview service", severity: "info", fix: "Log destination, status and size" },
+  ]}
+/>
+
+## 5. Detect and defend
+
+<Callout type="defence" title="checklist">
+  - Resolve the hostname, then block private, loopback and link-local IPs before connecting.
+  - Enforce IMDSv2 and a hop limit of 1 on every instance.
+  - Alert on outbound requests from app servers to `169.254.169.254`.
+</Callout>
+
+A minimal allow-list check in Python, run after DNS resolution:
+
+```python
+import ipaddress
+import socket
+
+def is_safe(host: str) -> bool:
+    addr = ipaddress.ip_address(socket.gethostbyname(host))
+    return not (addr.is_private or addr.is_loopback or addr.is_link_local or addr.is_reserved)
+```

@@ -1,0 +1,44 @@
+---
+title: Kerberos in one page
+description: Tickets, keys and the three exchanges, in the order they happen.
+date: 2026-10-18
+verified: 2026-10-18
+topics: [active-directory]
+video: kerberoasting
+references:
+  - { label: "RFC 4120: The Kerberos Network Authentication Service (rfc-editor.org)", href: "https://www.rfc-editor.org/rfc/rfc4120" }
+  - { label: "Microsoft: Kerberos authentication overview (learn.microsoft.com)", href: "https://learn.microsoft.com/en-us/windows-server/security/kerberos/kerberos-authentication-overview" }
+---
+
+## The cast
+
+- **Client:** the user's machine.
+- **KDC (Key Distribution Center):** runs on every domain controller. It has two parts, the Authentication Service (AS) and the Ticket Granting Service (TGS).
+- **Service:** the thing the user wants, such as a file share or SQL Server, running as a service account.
+
+Every party shares a secret key with the KDC. For users and service accounts, that key comes from their password.
+
+## Exchange 1: AS-REQ and AS-REP
+
+The client proves who it is and gets a **Ticket Granting Ticket (TGT)**. The TGT is encrypted with the key of the `krbtgt` account, so only the KDC can read it.
+
+## Exchange 2: TGS-REQ and TGS-REP
+
+The client sends the TGT and names a service by its **Service Principal Name (SPN)**, for example `MSSQLSvc/sql01.lab.local:1433`. The KDC returns a **service ticket**, encrypted with the service account's key.
+
+<Callout type="note">
+  The KDC does not check whether the user is allowed to use the service. That is the service's job. This is why any domain user can request any service ticket, and why Kerberoasting works.
+</Callout>
+
+## Exchange 3: AP-REQ and AP-REP
+
+The client presents the service ticket to the service. The service decrypts it with its own key, reads who the user is, and decides what they may do.
+
+## Where the attacks fit
+
+| Attack | Exchange | What is abused |
+| --- | --- | --- |
+| AS-REP roasting | 1 | Accounts with pre-authentication turned off |
+| Kerberoasting | 2 | Service tickets encrypted with a weak service-account password |
+| Golden ticket | 1 | A stolen `krbtgt` key, used to forge TGTs |
+| Silver ticket | 3 | A stolen service key, used to forge service tickets |

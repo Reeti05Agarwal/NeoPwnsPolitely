@@ -1,0 +1,83 @@
+/* Neo Pwns Politely tokens — values from the design system's tokens.json.
+   Dark is the default. Light applies from the theme toggle (data-theme="light"),
+   or from the OS setting when JavaScript has not set a theme yet. */
+
+:root,
+[data-theme="dark"] {
+  color-scheme: dark;
+  --surface-000: #101015; /* Page background. */
+  --surface-100: #181a22; /* Raised surfaces: cards. */
+  --surface-200: #22252f; /* Code blocks, hover and pressed states, table stripes. */
+  --border: #2e3240; /* Decorative hairlines only. */
+  --border-strong: #6a738a; /* Edges of controls. 3:1 or better. */
+  --ink: #f1f0e1; /* Body text and headings. */
+  --ink-muted: #b3b8c6; /* Metadata. */
+  --slate-500: #506385; /* Brand fill. */
+  --slate-text: #9aabcb; /* Links. */
+  --mist-100: #c9d3df; /* Note callouts, BLOG tag, MEDIUM. */
+  --mist-text: #c9d3df; /* Mist as text: code strings. */
+  --cherry-500: #a3193a; /* Cherry fill: VIDEO, CRITICAL, Subscribe. */
+  --cherry-text: #f28aa0; /* Cherry as text: HIGH, warnings, prompt. */
+  --on-accent: #f1f0e1; /* Text on slate-500 / cherry-500. */
+  --on-mist: #101015; /* Text on mist-100. */
+}
+
+[data-theme="light"] {
+  color-scheme: light;
+  --surface-000: #f1f0e1;
+  --surface-100: #f8f7ec;
+  --surface-200: #e4e2cf;
+  --border: #d3d0bc;
+  --border-strong: #7a7f8c;
+  --ink: #101015;
+  --ink-muted: #474c5c;
+  --slate-text: #506385;
+  --mist-100: #dce3ec;
+  --mist-text: #3e4d63;
+  --cherry-text: #a3193a;
+}
+
+@media (prefers-color-scheme: light) {
+  :root:not([data-theme]) {
+    color-scheme: light;
+    --surface-000: #f1f0e1;
+    --surface-100: #f8f7ec;
+    --surface-200: #e4e2cf;
+    --border: #d3d0bc;
+    --border-strong: #7a7f8c;
+    --ink: #101015;
+    --ink-muted: #474c5c;
+    --slate-text: #506385;
+    --mist-100: #dce3ec;
+    --mist-text: #3e4d63;
+    --cherry-text: #a3193a;
+  }
+}
+
+/* Aliases resolve per theme because they point at the variables above. */
+:root,
+[data-theme] {
+  --focus-ring: var(--cherry-text);
+  --sev-critical: var(--cherry-500);
+  --sev-high: var(--cherry-text);
+  --sev-medium: var(--mist-100);
+  --sev-low: var(--slate-500);
+  --sev-info: var(--border-strong);
+  --syn-keyword: var(--slate-text);
+  --syn-string: var(--mist-text);
+  --syn-comment: var(--ink-muted);
+  --syn-danger: var(--cherry-text);
+}
+
+:root {
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-4: 16px;
+  --space-8: 32px;
+  --radius-sm: 2px;
+  --radius-md: 6px;
+  --radius-pill: 999px;
+  /* --font-pt-mono is set by next/font/local on <html>. */
+  --font-stack: "Proto Mono", var(--font-pt-mono), "PT Mono", "JetBrains Mono", "Noto Sans Mono", ui-monospace,
+    "SF Mono", Menlo, Consolas, monospace;
+}

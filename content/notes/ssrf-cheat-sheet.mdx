@@ -1,0 +1,42 @@
+---
+title: SSRF cheat sheet
+description: Where SSRF hides, the addresses worth trying in a lab, common filter bypasses, and the fixes.
+date: 2026-10-11
+verified: 2026-10-22
+topics: [web, cloud]
+offensive: true
+video: ssrf-cloud-metadata
+references:
+  - { label: "OWASP SSRF Prevention Cheat Sheet (owasp.org)", href: "https://cheatsheetseries.owasp.org/cheatsheets/Server_Side_Request_Forgery_Prevention_Cheat_Sheet.html" }
+  - { label: "AWS: Use IMDSv2 (docs.aws.amazon.com)", href: "https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/configuring-instance-metadata-service.html" }
+---
+
+## Where it hides
+
+Any feature where the server fetches a URL you choose: link previews, webhooks, PDF and image generators, import-from-URL, and file uploads that accept a URL.
+
+## Targets to try in the lab
+
+| Target | Why |
+| --- | --- |
+| `http://127.0.0.1/` | Services bound to localhost only |
+| `http://169.254.169.254/latest/meta-data/` | Cloud metadata (AWS, and similar paths on other clouds) |
+| `http://lab.local:8080/admin` | Internal admin panels |
+| `file:///etc/passwd` | Local files, if the client allows the scheme |
+
+## Common filter bypasses
+
+Filters that check the text of a URL instead of the resolved address are easy to get around.
+
+- Other spellings of an IP: `http://2130706433/` is `127.0.0.1` as a decimal.
+- A DNS name you control that resolves to an internal address.
+- An open redirect on an allowed domain that sends the server on.
+
+## Fixes
+
+<Callout type="defence" title="checklist">
+  - Resolve the hostname, then block private, loopback and link-local addresses before connecting. Check again after every redirect.
+  - Allow-list the destinations a feature really needs.
+  - Require IMDSv2 tokens and set the hop limit to 1.
+  - Return only the fields the feature needs, never the raw response.
+</Callout>

@@ -1,0 +1,52 @@
+---
+title: Detecting lateral movement with Windows event logs
+description: Five event IDs that show an attacker moving between hosts, and a query for each.
+date: 2026-10-04
+verified: 2026-10-04
+series: mind-your-logs
+episode: 29
+thumbTitle: Catch lateral movement
+tone: cherry
+duration: "16:20"
+youtubeId: ""
+topics: [blue-team, forensics]
+chapters:
+  - { time: "00:00", label: What lateral movement looks like }
+  - { time: "02:40", label: "Logon type 3 and 10: event 4624" }
+  - { time: "06:15", label: "Explicit credentials: event 4648" }
+  - { time: "09:00", label: "New services: events 7045 and 4697" }
+  - { time: "12:30", label: "Admin shares: event 5145" }
+  - { time: "14:50", label: Putting it together }
+references:
+  - { label: "MITRE ATT&CK TA0008 Lateral Movement (attack.mitre.org)", href: "https://attack.mitre.org/tactics/TA0008/" }
+  - { label: "Microsoft: Audit Logon events (learn.microsoft.com)", href: "https://learn.microsoft.com/en-us/windows/security/threat-protection/auditing/audit-logon" }
+---
+
+## Summary
+
+Attackers rarely stay on the first machine they reach. They move sideways with stolen credentials, remote services and admin shares. Each of those steps leaves a trace in the Windows Security and System logs, if the right auditing is turned on.
+
+## The five events
+
+| Event | Log | What it tells you |
+| --- | --- | --- |
+| 4624 | Security | Successful logon. Type 3 is network, type 10 is Remote Desktop. |
+| 4648 | Security | A logon with explicit credentials, for example `runas` or PsExec. |
+| 7045 | System | A new service was installed. |
+| 4697 | Security | A service was installed (needs "Audit Security System Extension"). |
+| 5145 | Security | A network share object was checked, such as `ADMIN$` or `C$`. |
+
+## Query from this video
+
+<CodeBlock
+  lang="powershell"
+  host="analyst workstation"
+  lines={[
+    { out: "# Network logons in the last 24 hours, grouped by source address" },
+    "$ Get-WinEvent -FilterHashtable @{LogName='Security'; Id=4624; StartTime=(Get-Date).AddDays(-1)} | Where-Object { $_.Properties[8].Value -eq 3 } | Group-Object { $_.Properties[18].Value } | Sort-Object Count -Descending",
+  ]}
+/>
+
+<Callout type="tip">
+  One host logging on to many others over the network in a few minutes is the pattern to look for. Normal admin work is slower and comes from known jump hosts.
+</Callout>

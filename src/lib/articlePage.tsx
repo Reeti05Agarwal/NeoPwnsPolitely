@@ -25,7 +25,7 @@ export function articleRoute(kind: "notes" | "blog") {
       const item = getOne(kind, slug);
       if (!item) notFound();
       const video = item.meta.video ? getOne("videos", item.meta.video)?.meta : undefined;
-      const content = await renderMDX(item.body);
+      const content = await renderMDX(item.body, item.format);
       return (
         <ArticleLayout meta={item.meta} toc={toc(item.body)} video={video}>
           {content}

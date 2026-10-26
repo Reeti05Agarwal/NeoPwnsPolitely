@@ -11,6 +11,7 @@
     "build": "next build",
     "postbuild": "pagefind --site out",
     "start": "serve out -l 3000",
+    "import-notes": "node scripts/import-notes.mjs",
     "lint": "eslint .",
     "typecheck": "tsc --noEmit",
     "test:a11y": "playwright test"

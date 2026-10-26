@@ -227,6 +227,17 @@
   .ch-prose > table { display: block; overflow-x: auto; border-collapse: collapse; font-size: 1rem; line-height: 1.5rem; }
   .ch-prose > table th { text-align: left; font-weight: 400; font-size: .875rem; letter-spacing: .5px; color: var(--ink-muted); border-bottom: 1px solid var(--border-strong); padding: var(--space-2); }
   .ch-prose > table td { border-bottom: 1px solid var(--border); padding: var(--space-2); vertical-align: top; }
+  .ch-prose h4, .ch-prose h5, .ch-prose h6 { font-size: 1rem; line-height: 1.5rem; margin-top: var(--space-2); }
+  .ch-prose img { max-width: 100%; height: auto; border: 1px solid var(--border); border-radius: var(--radius-sm); }
+  .ch-prose blockquote { margin: 0; padding-left: var(--space-4); border-left: 2px solid var(--border-strong); display: grid; gap: var(--space-2); }
+  .ch-prose li > ul, .ch-prose li > ol { margin-top: var(--space-1); }
+
+  /* Notes tree (imported CyberNotes) */
+  .ch-tree { border-bottom: 1px solid var(--border); }
+  .ch-tree summary { cursor: pointer; min-height: 44px; display: flex; align-items: center; gap: var(--space-2); font-size: 1.25rem; line-height: 1.75rem; }
+  .ch-tree__body { display: grid; gap: var(--space-4); padding: 0 0 var(--space-4) var(--space-4); }
+  .ch-tree h3 { font-size: 1rem; line-height: 1.5rem; color: var(--ink-muted); }
+  .ch-tree ul { list-style: disc; margin: 0; padding-left: 1.5em; display: grid; gap: var(--space-1); }
   .ch-hero-title { font-size: 2.75rem; line-height: 3.25rem; letter-spacing: -.5px; }
   .ch-page-title { font-size: 2rem; line-height: 2.5rem; }
   @media (max-width: 880px) { .ch-hero-title { font-size: 2rem; line-height: 2.5rem; } .ch-page-title { font-size: 1.625rem; line-height: 2.125rem; } }

@@ -8,22 +8,27 @@ import type { ArticleMeta, Kind, Meta, TocItem, VideoMeta } from "./meta";
 export * from "./meta";
 
 /* Content lives in /content/<kind>/<slug>.mdx. The frontmatter fields are the
-   types in meta.ts; README.md shows a full example for each kind. */
+   types in meta.ts; README.md shows a full example for each kind. Notes imported
+   from the CyberNotes vault are plain Markdown in /content/notes/vault/<slug>.md. */
 
 const ROOT = path.join(process.cwd(), "content");
 
 type MetaFor<K extends Kind> = K extends "videos" ? VideoMeta : ArticleMeta;
 
+/** Content files of a kind, relative to its folder, keyed by slug. */
 function readDir(kind: Kind) {
   const dir = path.join(ROOT, kind);
-  if (!fs.existsSync(dir)) return [];
-  return fs.readdirSync(dir).filter((f) => f.endsWith(".mdx"));
+  if (!fs.existsSync(dir)) return new Map<string, string>();
+  const files = fs
+    .readdirSync(dir, { recursive: true, encoding: "utf8" })
+    .map((f) => f.split(path.sep).join("/"))
+    .filter((f) => f.endsWith(".mdx") || f.endsWith(".md"));
+  return new Map(files.map((f) => [path.posix.basename(f).replace(/\.mdx?$/, ""), f]));
 }
 
-function parse(kind: Kind, file: string) {
+function parse(kind: Kind, slug: string, file: string) {
   const raw = fs.readFileSync(path.join(ROOT, kind, file), "utf8");
   const { data, content } = matter(raw);
-  const slug = file.replace(/\.mdx$/, "");
   const base = {
     ...data,
     slug,
@@ -35,7 +40,7 @@ function parse(kind: Kind, file: string) {
     kind === "videos"
       ? ({ ...base, kind, chapters: data.chapters ?? [] } as VideoMeta)
       : ({ ...base, kind, readTime: readTime(content) } as ArticleMeta);
-  return { meta, body: content };
+  return { meta, body: content, format: file.endsWith(".md") ? ("md" as const) : ("mdx" as const) };
 }
 
 // gray-matter turns unquoted YAML dates into Date objects.
@@ -50,16 +55,16 @@ function readTime(body: string) {
 }
 
 export function getAll<K extends Kind>(kind: K): MetaFor<K>[] {
-  return readDir(kind)
-    .map((f) => parse(kind, f).meta as MetaFor<K>)
+  return [...readDir(kind)]
+    .map(([slug, f]) => parse(kind, slug, f).meta as MetaFor<K>)
     .sort((a, b) => b.date.localeCompare(a.date));
 }
 
 export function getOne<K extends Kind>(kind: K, slug: string) {
-  const file = `${slug}.mdx`;
-  if (!readDir(kind).includes(file)) return undefined;
-  const { meta, body } = parse(kind, file);
-  return { meta: meta as MetaFor<K>, body };
+  const file = readDir(kind).get(slug);
+  if (!file) return undefined;
+  const { meta, body, format } = parse(kind, slug, file);
+  return { meta: meta as MetaFor<K>, body, format };
 }
 
 /** Headings for the table of contents, with the same ids rehype-slug gives them. */

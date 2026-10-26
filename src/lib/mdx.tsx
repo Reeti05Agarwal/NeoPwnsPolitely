@@ -1,7 +1,7 @@
 import "server-only";
 import { evaluate, type EvaluateOptions } from "@mdx-js/mdx";
 import * as runtime from "react/jsx-runtime";
-import type { AnchorHTMLAttributes } from "react";
+import type { AnchorHTMLAttributes, ImgHTMLAttributes } from "react";
 import Link from "next/link";
 import remarkGfm from "remark-gfm";
 import rehypeSlug from "rehype-slug";
@@ -33,14 +33,23 @@ function A({ href = "", children, ...rest }: AnchorHTMLAttributes<HTMLAnchorElem
   );
 }
 
-/** Components available inside every .mdx file without importing them. */
-const components = { a: A, Callout, Responsible, CodeBlock, FindingsTable, Severity, Tag, Topic };
+// Screenshots in imported notes load as the reader scrolls to them.
+function Img({ alt = "", ...rest }: ImgHTMLAttributes<HTMLImageElement>) {
+  // eslint-disable-next-line @next/next/no-img-element -- static export, images are already plain files
+  return <img alt={alt} loading="lazy" decoding="async" {...rest} />;
+}
 
-export async function renderMDX(source: string) {
+/** Components available inside every .mdx file without importing them. */
+const components = { a: A, img: Img, Callout, Responsible, CodeBlock, FindingsTable, Severity, Tag, Topic };
+
+/** `md` is plain Markdown (the imported CyberNotes): no JSX, and raw HTML is not rendered. */
+export async function renderMDX(source: string, format: "mdx" | "md" = "mdx") {
   const { default: Content } = await evaluate(source, {
     ...(runtime as unknown as Pick<EvaluateOptions, "Fragment" | "jsx" | "jsxs">),
+    format,
     remarkPlugins: [remarkGfm],
-    rehypePlugins: [rehypeSlug, [rehypeShiki, { theme }]],
+    // Unlabelled or unknown fence languages render as plain text instead of failing the build.
+    rehypePlugins: [rehypeSlug, [rehypeShiki, { theme, defaultLanguage: "text", fallbackLanguage: "text" }]],
   });
   return <Content components={components} />;
 }

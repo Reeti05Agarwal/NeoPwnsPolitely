@@ -28,6 +28,7 @@ export function ArticleLayout({ meta, toc, video, children }: { meta: ArticleMet
         <h1 className="ch-hero-title">{meta.title}</h1>
         <p className="ch-muted">{meta.description}</p>
         <div className="ch-meta">
+          {meta.section && <span>{meta.section.join(" / ")}</span>}
           <span>Read time {meta.readTime} min</span>
           <span>Published {formatDate(meta.date)}</span>
           {meta.verified && <span>Last verified: {formatDate(meta.verified)}</span>}

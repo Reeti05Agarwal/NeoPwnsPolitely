@@ -11,7 +11,8 @@ const QUICK_LINKS = ["Nmap", "Web Security Academy", "MITRE ATT&CK"];
 
 export default function Home() {
   const videos = getAll("videos");
-  const notes = getAll("notes").slice(0, 3);
+  // Hand-written notes only: imported vault notes are dated by when the file last changed.
+  const notes = getAll("notes").filter((n) => !n.section).slice(0, 3);
   const posts = getAll("blog").slice(0, 3);
   const latest = videos[0];
   const links = RESOURCES.filter((r) => QUICK_LINKS.includes(r.name));

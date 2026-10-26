@@ -96,6 +96,23 @@ Components available in MDX without importing: `Callout` (`note`, `tip`, `warnin
 
 Resources (tools, labs, docs) are a list in `src/lib/resources.ts`.
 
+### Notes from the CyberNotes vault
+
+The Obsidian vault at `../../CyberNotes` (next to `Projects/`) feeds the "From the notebook" part of `/notes/`. Edit notes in Obsidian, then:
+
+```bash
+npm run import-notes
+```
+
+The script rebuilds `content/notes/vault/` (one `.md` per note) and `public/notes/img/` (only the images those notes embed). Commit both: the deploy builds from the repo and never sees the vault.
+
+- **What is published** is set in `scripts/notes.config.mjs`: only top-level folders listed in `include` go out, each with its site topic. Projects, pentest reports, bug bounty and other personal folders are left out. Add `publish: false` to a note's frontmatter to keep that one note private.
+- **Secrets check:** a note that looks like it holds a private key or API token is skipped and listed in the output. Check it, and add `publish: true` to its frontmatter if it is safe.
+- **Converted:** `[[wiki links]]` (to notes that are not published, they become plain text), `![[image embeds]]`, `> [!NOTE]` callouts, `==highlights==` and `%%comments%%`. Headings shift down one level, so the page title is the only `h1`. Remote images become links, because the CSP only allows images from this site.
+- Imported notes are plain Markdown, not MDX: JSX components and raw HTML do not render, so XSS payloads in notes show as text.
+- They stay off the home page and the RSS feed, but are in the sitemap and in search.
+- The vault lives somewhere else? `CYBERNOTES_DIR=/path/to/vault npm run import-notes`.
+
 House rules from the design system: documentation-safe targets only (`10.10.10.5`, `192.0.2.10`, `target.example`, `lab.local`), redact secrets, defang IOCs, the Legal callout above the first command, and a Defence callout at the end of every attack walkthrough.
 
 ## Deploy

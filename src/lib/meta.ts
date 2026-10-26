@@ -42,6 +42,9 @@ export interface ArticleMeta extends BaseMeta {
   kind: "notes" | "blog";
   readTime: number; // minutes, computed
   video?: string; // slug of the companion video
+  /** Vault folders, top first. Set only on notes imported from CyberNotes. */
+  section?: string[];
+  order?: number; // position in the vault, for the notes tree
 }
 
 export type Meta = VideoMeta | ArticleMeta;

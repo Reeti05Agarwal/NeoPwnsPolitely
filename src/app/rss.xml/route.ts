@@ -10,7 +10,8 @@ function esc(s: string) {
 const KIND_LABEL = { videos: "Video", notes: "Notes", blog: "Blog" } as const;
 
 export function GET() {
-  const items: Meta[] = [...getAll("videos"), ...getAll("notes"), ...getAll("blog")].sort((a, b) => b.date.localeCompare(a.date));
+  // Imported vault notes stay out of the feed, or every re-import would flood it.
+  const items: Meta[] = [...getAll("videos"), ...getAll("notes").filter((n) => !n.section), ...getAll("blog")].sort((a, b) => b.date.localeCompare(a.date));
   const xml = `<?xml version="1.0" encoding="UTF-8"?>
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
 <channel>

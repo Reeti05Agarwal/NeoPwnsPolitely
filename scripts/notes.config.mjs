@@ -5,7 +5,8 @@
 
 export default {
   // Path to the vault. Override with CYBERNOTES_DIR=... when it lives elsewhere.
-  vault: process.env.CYBERNOTES_DIR ?? "../../CyberNotes",
+
+  vault: process.env.CYBERNOTES_DIR ?? "../CyberNotes",
 
   // Top-level vault folders to publish, mapped to the site topic they get.
   // Left out on purpose: 0 - Projects (pentest reports, CTFs, home server),

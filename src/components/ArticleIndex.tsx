@@ -2,10 +2,9 @@ import { Breadcrumbs } from "./Breadcrumbs";
 import { ContentCard } from "./ContentCard";
 import { Callout } from "./Callout";
 import type { ArticleMeta } from "@/lib/meta";
-import type { ReactNode } from "react";
 
-/** Listing page for notes or blog posts, newest first. `children` goes below the cards. */
-export function ArticleIndex({ title, intro, items, children }: { title: string; intro: string; items: ArticleMeta[]; children?: ReactNode }) {
+/** Listing page for notes or blog posts, newest first. */
+export function ArticleIndex({ title, intro, items }: { title: string; intro: string; items: ArticleMeta[] }) {
   return (
     <main id="main" className="ch-main ch-main--tight">
       <header className="ch-stack max-w-[68ch]">
@@ -20,13 +19,10 @@ export function ArticleIndex({ title, intro, items, children }: { title: string;
           ))}
         </div>
       ) : (
-        !children && (
-          <Callout type="note">
-            <p>Nothing here yet. Thank you for your patience.</p>
-          </Callout>
-        )
+        <Callout type="note">
+          <p>Nothing here yet. Thank you for your patience.</p>
+        </Callout>
       )}
-      {children}
     </main>
   );
 }

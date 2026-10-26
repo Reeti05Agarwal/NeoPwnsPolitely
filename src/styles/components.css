@@ -232,12 +232,17 @@
   .ch-prose blockquote { margin: 0; padding-left: var(--space-4); border-left: 2px solid var(--border-strong); display: grid; gap: var(--space-2); }
   .ch-prose li > ul, .ch-prose li > ol { margin-top: var(--space-1); }
 
-  /* Notes tree (imported CyberNotes) */
-  .ch-tree { border-bottom: 1px solid var(--border); }
-  .ch-tree summary { cursor: pointer; min-height: 44px; display: flex; align-items: center; gap: var(--space-2); font-size: 1.25rem; line-height: 1.75rem; }
-  .ch-tree__body { display: grid; gap: var(--space-4); padding: 0 0 var(--space-4) var(--space-4); }
-  .ch-tree h3 { font-size: 1rem; line-height: 1.5rem; color: var(--ink-muted); }
-  .ch-tree ul { list-style: disc; margin: 0; padding-left: 1.5em; display: grid; gap: var(--space-1); }
+  /* Notebook (imported CyberNotes on /notes/): section, then a row per folder, links in balanced columns */
+  .ch-nb { display: grid; gap: 48px; min-width: 0; }
+  .ch-nb__section { display: grid; gap: var(--space-4); }
+  .ch-nb__section > h3 { display: flex; flex-wrap: wrap; align-items: baseline; gap: var(--space-2) var(--space-4); font-size: 1.5rem; line-height: 2rem; scroll-margin-top: var(--space-8); }
+  .ch-nb__row { display: grid; gap: var(--space-2) var(--space-8); padding-top: var(--space-4); border-top: 1px solid var(--border); }
+  .ch-nb__row h4 { font-size: 1rem; line-height: 1.5rem; }
+  @media (min-width: 60rem) { .ch-nb__row { grid-template-columns: 180px minmax(0, 1fr); } }
+  .ch-nb__cols { columns: 15rem; column-gap: var(--space-8); }
+  .ch-nb__group { break-inside: avoid; display: grid; gap: var(--space-1); margin-bottom: var(--space-4); }
+  .ch-nb__group ul { list-style: none; margin: 0; padding: 0; display: grid; gap: var(--space-1); }
+  .ch-nb__group a { display: inline-block; padding: 2px 0; line-height: 1.5rem; overflow-wrap: anywhere; }
   .ch-hero-title { font-size: 2.75rem; line-height: 3.25rem; letter-spacing: -.5px; }
   .ch-page-title { font-size: 2rem; line-height: 2.5rem; }
   @media (max-width: 880px) { .ch-hero-title { font-size: 2rem; line-height: 2.5rem; } .ch-page-title { font-size: 1.625rem; line-height: 2.125rem; } }

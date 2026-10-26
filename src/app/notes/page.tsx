@@ -1,18 +1,18 @@
-import { ArticleIndex } from "@/components/ArticleIndex";
-import { NotesTree } from "@/components/NotesTree";
+import { Breadcrumbs } from "@/components/Breadcrumbs";
+import { NotesBrowser } from "@/components/NotesBrowser";
 import { getAll } from "@/lib/content";
 
 export const metadata = { title: "Notes & cheat sheets", description: "Cheat sheets, concept notes and command references, each linked to its video." };
 
 export default function NotesPage() {
-  const notes = getAll("notes");
   return (
-    <ArticleIndex
-      title="Notes & cheat sheets"
-      intro="Cheat sheets, concept notes and command references. Every command is text you can copy, and every note links back to its video."
-      items={notes.filter((n) => !n.section)}
-    >
-      <NotesTree notes={notes.filter((n) => n.section)} />
-    </ArticleIndex>
+    <main id="main" className="ch-main ch-main--tight">
+      <header className="ch-stack max-w-[68ch]">
+        <Breadcrumbs items={[{ label: "Home", href: "/" }, { label: "Notes & cheat sheets" }]} />
+        <h1 className="ch-hero-title">Notes &amp; cheat sheets</h1>
+        <p className="ch-muted">Cheat sheets with commands you can copy, and the notebook they come from: concepts, systems and standards, filed the way I study them.</p>
+      </header>
+      <NotesBrowser notes={getAll("notes")} />
+    </main>
   );
 }

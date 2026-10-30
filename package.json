@@ -33,15 +33,15 @@
     "@axe-core/playwright": "^4.11.0",
     "@playwright/test": "^1.56.1",
     "@tailwindcss/postcss": "^4.1.16",
-    "@types/node": "^22.18.0",
+    "@types/node": "^26.6.5",
     "@types/react": "^19.2.2",
     "@types/react-dom": "^19.2.2",
-    "eslint": "^9.38.0",
-    "eslint-config-next": "16.0.1",
+    "eslint": "^10.13.0",
+    "eslint-config-next": "16.4.3",
     "eslint-plugin-jsx-a11y": "^6.10.2",
     "pagefind": "^1.4.0",
     "serve": "^14.2.5",
     "tailwindcss": "^4.1.16",
-    "typescript": "^5.9.3"
+    "typescript": "^7.0.2"
   }
 }
